@@ -1,0 +1,48 @@
+{
+  "name": "@cosify/wx-setup",
+  "version": "1.0.0-rc.2",
+  "description": "Use composition api to setup Wechat Miniprogram.",
+  "keywords": [
+    "Wechat",
+    "weixin",
+    "Vue"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "export NODE_ENV=production && webpack --progress",
+    "build:types": "tsc --declaration --emitDeclarationOnly",
+    "watch": "webpack --watch",
+    "publish": "npm publish --access public",
+    "test": "static-server -p 12306 -o"
+  },
+  "author": "Maiz",
+  "homepage": "https://github.com/Maizify/wx-setup",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Maizify/wx-setup.git"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.17.10",
+    "@babel/plugin-transform-runtime": "^7.17.0",
+    "@babel/preset-env": "^7.17.10",
+    "@babel/preset-typescript": "^7.16.7",
+    "babel-loader": "^8.2.5",
+    "static-server": "^2.2.1",
+    "typescript": "^4.6.4",
+    "webpack": "^5.72.1",
+    "webpack-cli": "^4.9.2"
+  },
+  "dependencies": {
+    "@vue/reactivity": "^3.2.33"
+  },
+  "peerDependencies": {
+    "@types/wechat-miniprogram": "^3.4.1"
+  }
+}
