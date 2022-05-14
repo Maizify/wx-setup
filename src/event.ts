@@ -1,7 +1,7 @@
 import { agentStack } from './instanceAgent';
 import { InstanceAgent } from './instanceAgent';
 
-type IUseEvent<TData extends any> = () => EventAgent<TData>;
+export type IUseEvent<TData extends any> = () => EventAgent<TData>;
 
 export interface IDefineEventOptions {
   /**

@@ -1,6 +1,6 @@
 {
   "name": "@cosify/wx-setup",
-  "version": "1.0.0-rc.2",
+  "version": "1.0.0-rc.3",
   "description": "Use composition api to setup Wechat Miniprogram.",
   "keywords": [
     "Wechat",

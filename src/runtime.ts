@@ -1,4 +1,3 @@
-import { shallowReactive, reactive, isReactive } from '@vue/reactivity';
 import { EMPTY_OBJECT, isArray } from './utils';
 import { InstanceAgent, agentStack, agentMap } from './instanceAgent';
 import type { ShallowReactive } from '@vue/reactivity';

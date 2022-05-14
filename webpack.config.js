@@ -55,7 +55,6 @@ export default (env, argv) => {
         apply: (compiler) => {
           compiler.hooks.done.tap('AfterBuild', () => {
             exec('npm run build:types');
-            // exec('cd ../wx/; npm run build:npm');
           });
         },
       }

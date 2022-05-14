@@ -1,10 +1,11 @@
 import { reactive, toRaw } from '@vue/reactivity';
 import { agentStack } from './instanceAgent';
+import { EMPTY_OBJECT } from './utils';
 import type { UnwrapNestedRefs } from '@vue/reactivity';
 
-type IState = { [key: string]: any };
-type IActions = { [key: string]: Function };
-type IUseStore<TState extends IState, TActions extends IActions> = () => ReactiveStore<TState, TActions>;
+export type IState = { [key: string]: any };
+export type IActions = { [key: string]: Function };
+export type IUseStore<TState extends IState, TActions extends IActions> = () => ReactiveStore<TState, TActions>;
 
 export interface IDefineStoreOptions<TState extends IState, TActions extends IActions> {
   /**
@@ -26,7 +27,7 @@ export interface IDefineStoreOptions<TState extends IState, TActions extends IAc
    * 
    * Reacitve state data by `state()` will be sent as the parameter.
    */
-  setup: (state: UnwrapNestedRefs<TState>, store: ReactiveStore<TState, TActions>) => TActions;
+  setup?: (state: UnwrapNestedRefs<TState>, store: ReactiveStore<TState, TActions>) => TActions;
 }
 
 const defineMap = new Map<string, IUseStore<any, any>>();
@@ -35,13 +36,15 @@ const storeMap = new Map<string, ReactiveStore<any, any>>();
 class ReactiveStore<TState extends IState, TActions extends IActions> {
   public readonly id: string;
   public state: UnwrapNestedRefs<TState>;
-  public actions: TActions;
+  public actions: TActions = <TActions>EMPTY_OBJECT;
   protected options: IDefineStoreOptions<TState, TActions>;
 
   constructor (options: IDefineStoreOptions<TState, TActions>) {
     this.id = options.id;
     this.state = reactive(options.state());
-    this.actions = options.setup(this.state, this);
+    if (typeof options.setup === 'function') {
+      this.actions = options.setup(this.state, this);
+    }
     this.options = options;
   }
 
