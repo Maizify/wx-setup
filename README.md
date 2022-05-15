@@ -1,7 +1,12 @@
 `@cosify/wx-setup` - 微信小程序组合式 API
 ---
+[![npm version](https://img.shields.io/npm/v/@cosify/wx-setup/latest.svg)](https://www.npmjs.com/package/@cosify/wx-setup)
 
-在微信小程序里使用类似 Vue3 的组合式 API（Composition API）和响应性 API（Reactivity API）。
+更优雅地组织代码——在微信小程序里使用类似 Vue3 的组合式 API（Composition API）和响应性 API（Reactivity API）。
+
+```bash
+npm install @cosify/wx-setup
+```
 
 ```typescript
 import { defineComponent, reactive, onAttached } from '@cosify/wx-setup';
@@ -25,6 +30,9 @@ defineComponent({
   }
 });
 ```
+
+**注意：尽管基础功能已经完成开发，但目前仍在试验阶段，API 及功能尚未完全稳定，请谨慎使用。**
+
 
 # 目录
 
