@@ -3,22 +3,13 @@ import { watch } from './watch';
 import { MethodsAgent } from './methodsAgent';
 import type { ShallowReactive } from '@vue/reactivity';
 import type { IOptionalMethodOptions } from './methodsAgent'; 
-import type { RuntimeType } from './runtime';
 import type { IAnyObject } from './utils';
 
-/**
- * Used for composition APIs (like `onLoad()`) in `setup()` functions.
- */
-export const agentStack = new class AgentStack extends Array<InstanceAgent> {
-  public last() {
-    return this[this.length - 1];
-  }
+export enum InstanceType {
+  Component = 'Component',
+  Behavior = 'Behavior',
+  Page = 'Page',
 }
-
-/**
- * Used for original lifetime methods of component inscance.
- */
-export const agentMap = new WeakMap<WechatMiniprogram.Component.TrivialInstance, InstanceAgent>();
 
 let InstanceAgentIdCounter = 0;
 
@@ -28,7 +19,7 @@ let InstanceAgentIdCounter = 0;
 export class InstanceAgent {
   public id: number = ++InstanceAgentIdCounter;
   public instance: WechatMiniprogram.Component.TrivialInstance = undefined;
-  public runtimeType: RuntimeType;
+  public instanceType: InstanceType;
   public useOptionalMethod: IOptionalMethodOptions;
   public methods = new MethodsAgent();
   public props: ShallowReactive<IAnyObject> = undefined;
@@ -86,7 +77,7 @@ export class InstanceAgent {
     this.scope.stop();
     delete this.id;
     delete this.instance;
-    delete this.runtimeType;
+    delete this.instanceType;
     delete this.useOptionalMethod;
     delete this.methods;
     delete this.props;

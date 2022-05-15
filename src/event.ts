@@ -1,4 +1,4 @@
-import { agentStack } from './instanceAgent';
+import { agentStack } from './instanceAgentPool';
 import { InstanceAgent } from './instanceAgent';
 
 export type IUseEvent<TData extends any> = () => EventAgent<TData>;

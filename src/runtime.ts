@@ -1,5 +1,6 @@
 import { EMPTY_OBJECT, isArray } from './utils';
-import { InstanceAgent, agentStack, agentMap } from './instanceAgent';
+import { InstanceAgent, InstanceType } from './instanceAgent';
+import { agentMap, agentStack } from './instanceAgentPool';
 import type { ShallowReactive } from '@vue/reactivity';
 import type { IAnyObject } from './utils';
 import type { IOptionalMethodOptions } from './methodsAgent'; 
@@ -57,19 +58,15 @@ export interface IDefineComponentOptions<TProperty extends IPropertyOption> {
   setup: ISetup<TProperty>;
 }
 
-export enum RuntimeType {
-  Component = 'Component',
-  Behavior = 'Behavior',
-  Page = 'Page',
-}
 
 function callAgentMethod(
+  type: InstanceType,
   wxInstance: WechatMiniprogram.Component.TrivialInstance, 
   method: string, 
   args?: any[]
 ) {
   // console.info('[runtime] callAgentMethod:', method, wxInstance.is);
-  const agent = agentMap.get(wxInstance);
+  const agent = agentMap.get(type, wxInstance);
   if (!agent) {
     console.warn(`[wx-setup] Fail to call \`${method}()\`.`);
     return;
@@ -82,7 +79,7 @@ function callAgentMethod(
 
 export function createComponentOptions<TProperty extends IPropertyOption>(
   options: IDefineComponentOptions<TProperty>, 
-  type: RuntimeType
+  type: InstanceType
 ) {
   type IWxInstance = WechatMiniprogram.Component.Instance<IAnyObject, TProperty, IAnyObject, IAnyObject>;
   type IProperty = IPropertyOptionToData<TProperty>;
@@ -93,13 +90,13 @@ export function createComponentOptions<TProperty extends IPropertyOption>(
 
   const applySetup = (wxInstance: IWxInstance) => {
     const agent = new InstanceAgent();
-    // console.info('[runtime] applySetup Start', agent.id, wxInstance.is, wxInstance);
+    // console.info('[wx-setup] applySetup() Start', agent.id, wxInstance.is, wxInstance);
     agent.instance = wxInstance;
-    agent.runtimeType = type;
+    agent.instanceType = type;
     agent.useOptionalMethod = options.useMethod || EMPTY_OBJECT;
     agent.useProps(propsKeys);
 
-    agentMap.set(wxInstance, agent);
+    agentMap.set(type, wxInstance, agent);
     agentStack.push(agent);
 
     const ret = options.setup({
@@ -115,14 +112,14 @@ export function createComponentOptions<TProperty extends IPropertyOption>(
           data[key] = ret[key];
         }
       }
-      // console.info('[runtime] setup() ret data:', data);
+      // console.info('[wx-setup] setup() ret data:', data);
       if (Object.keys(data).length > 0) {
         agent.useData(data);
       }
     }
 
     agentStack.pop();
-    // console.info('[runtime] applySetup End', wxInstance.is);
+    // console.info('[wx-setup] applySetup() End', wxInstance.is);
   };
 
   // Init component options
@@ -133,26 +130,26 @@ export function createComponentOptions<TProperty extends IPropertyOption>(
     pageLifetimes: {},
     lifetimes: {
       created() {
-        // console.info('[runtime] created', this.is);
-        if (agentMap.has(this)) {
-          console.debug('[wx-setup] DUPLICATE lifetime: created():', this.is);
+        // console.info('[wx-setup] created', type, this.is);
+        if (agentMap.has(type, this)) {
+          console.debug('[wx-setup] DUPLICATE lifetime: created():', type, this.is);
           return;
         }
         applySetup(this);
-        return callAgentMethod(this, 'onCreated', []);
+        return callAgentMethod(type, this, 'onCreated', []);
       },
       attached() {
-        // console.info('[runtime] attached', this.is);
-        const agent = agentMap.get(this);
+        // console.info('[wx-setup] attached', type, this.is);
+        const agent = agentMap.get(type, this);
         agent.canSetData = true;
         agent.saveUnsetData();
-        return callAgentMethod(this, 'onAttached', []);
+        return callAgentMethod(type, this, 'onAttached', []);
       },
       detached() {
-        callAgentMethod(this, 'onDetached', [])
-        const agent = agentMap.get(this);
+        callAgentMethod(type, this, 'onDetached', [])
+        const agent = agentMap.get(type, this);
         agent.destroy();
-        agentMap.delete(this);
+        agentMap.delete(type, this);
       }
     },
   };
@@ -170,7 +167,7 @@ export function createComponentOptions<TProperty extends IPropertyOption>(
   // Watch properties
   propsKeys.forEach((k) => {
     componentOptions.observers[<string>k] = function(newValue) {
-      const agent = agentMap.get(this);
+      const agent = agentMap.get(type, this);
       // console.info('[runtime] observers: changed', k, newValue, this.properties[k], newValue === agent.props[k], agent.id);
       if (!agent) { return; }
       if (newValue !== agent.props[k]) {
@@ -234,11 +231,11 @@ export function createComponentOptions<TProperty extends IPropertyOption>(
   for (const optionKey in useAgentMethods) {
     for (const key in useAgentMethods[optionKey]) {
       componentOptions[optionKey][key] = function(...args) {
-        return callAgentMethod(this, useAgentMethods[optionKey][key], args);
+        return callAgentMethod(type, this, useAgentMethods[optionKey][key], args);
       };
     }
   }
 
-  // console.info('[runtime] componentOptions', componentOptions);
+  // console.info('[wx-setup] componentOptions', componentOptions);
   return componentOptions;
 }

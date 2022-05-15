@@ -1,4 +1,5 @@
-import { createComponentOptions, RuntimeType } from './runtime';
+import { InstanceType } from './instanceAgent';
+import { createComponentOptions } from './runtime';
 import type { ISetupContext } from './runtime';
 import type { IOptionalMethodOptions } from './methodsAgent'; 
 import type { IAnyObject } from './utils';
@@ -26,7 +27,7 @@ export interface IDefineBehaviorOptions<TProperty extends IPropertyOption> {
 export function defineBehavior<TProperty extends IPropertyOption>(options: IDefineBehaviorOptions<TProperty>) {
   type IOptions = WechatMiniprogram.Behavior.Options<IAnyObject, TProperty, IAnyObject>;
 
-  const componentOptions = createComponentOptions(options, RuntimeType.Behavior);
+  const componentOptions = createComponentOptions(options, InstanceType.Behavior);
   delete componentOptions.options;
 
   const useBehavior = function() {

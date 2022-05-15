@@ -1,5 +1,5 @@
 import { reactive, toRaw } from '@vue/reactivity';
-import { agentStack } from './instanceAgent';
+import { agentStack } from './instanceAgentPool';
 import { EMPTY_OBJECT } from './utils';
 import type { UnwrapNestedRefs } from '@vue/reactivity';
 

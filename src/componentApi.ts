@@ -1,5 +1,5 @@
 import { reactive, isReactive } from '@vue/reactivity';
-import { agentStack } from './instanceAgent';
+import { agentStack } from './instanceAgentPool';
 import type { UnwrapNestedRefs } from '@vue/reactivity';
 
 /**

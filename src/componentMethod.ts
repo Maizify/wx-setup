@@ -1,6 +1,7 @@
-import { agentStack } from './instanceAgent';
+
+import { InstanceType } from './instanceAgent';
+import { agentStack } from './instanceAgentPool';
 import { OptionalMethods } from './methodsAgent';
-import { RuntimeType } from './runtime';
 import type { InstanceAgent } from './instanceAgent';
 
 function setAgentMethod<T extends keyof InstanceAgent['methods']>(method: T, cb: InstanceAgent['methods'][T], componentOnly = false) {
@@ -10,7 +11,7 @@ function setAgentMethod<T extends keyof InstanceAgent['methods']>(method: T, cb:
     console.warn(`[wx-setup] \`${method}()\` must be called in \`setup()\` function.`);
     return;
   }
-  if (!!componentOnly && agent.runtimeType === RuntimeType.Behavior) {
+  if (!!componentOnly && agent.instanceType === InstanceType.Behavior) {
     console.warn(`[wx-setup] Invalid \`${method}()\` calling. It can only be used for \`Component\`.`);
     return;
   }
