@@ -4,7 +4,7 @@
   "description": "Use composition api to setup Wechat Miniprogram.",
   "keywords": [
     "Wechat",
-    "weixin",
+    "Weixin",
     "Vue"
   ],
   "main": "./dist/index.js",
@@ -19,7 +19,6 @@
     "build": "export NODE_ENV=production && webpack --progress",
     "build:types": "tsc --declaration --emitDeclarationOnly",
     "watch": "webpack --watch",
-    "publish": "npm publish --access public",
     "test": "static-server -p 12306 -o"
   },
   "author": "Maiz",

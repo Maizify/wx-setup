@@ -5,15 +5,23 @@ import type { UnwrapNestedRefs } from '@vue/reactivity';
 
 export type IState = { [key: string]: any };
 export type IActions = { [key: string]: Function };
-export type IUseStore<TState extends IState, TActions extends IActions> = () => ReactiveStore<TState, TActions>;
+export type IUseStore<
+  TState extends IState, 
+  TActions extends IActions, 
+  TId extends string
+> = () => ReactiveStore<TState, TActions, TId>;
 
-export interface IDefineStoreOptions<TState extends IState, TActions extends IActions> {
+export interface IDefineStoreOptions<
+  TState extends IState, 
+  TActions extends IActions, 
+  TId extends string
+> {
   /**
    * The ID of the store.
    * 
    * *MUST BE* global unique.
    */
-  id: string;
+  id: TId;
   /**
    * Returns the state data of the store.
    * 
@@ -27,19 +35,23 @@ export interface IDefineStoreOptions<TState extends IState, TActions extends IAc
    * 
    * Reacitve state data by `state()` will be sent as the parameter.
    */
-  setup?: (state: UnwrapNestedRefs<TState>, store: ReactiveStore<TState, TActions>) => TActions;
+  setup?: (state: UnwrapNestedRefs<TState>, store: ReactiveStore<TState, TActions, TId>) => TActions;
 }
 
-const defineMap = new Map<string, IUseStore<any, any>>();
-const storeMap = new Map<string, ReactiveStore<any, any>>();
+const defineMap = new Map<string, IUseStore<any, any, any>>();
+const storeMap = new Map<string, ReactiveStore<any, any, any>>();
 
-class ReactiveStore<TState extends IState, TActions extends IActions> {
-  public readonly id: string;
+class ReactiveStore<
+  TState extends IState, 
+  TActions extends IActions, 
+  TId extends string
+> {
+  public readonly id: TId;
   public state: UnwrapNestedRefs<TState>;
   public actions: TActions = <TActions>EMPTY_OBJECT;
-  protected options: IDefineStoreOptions<TState, TActions>;
+  protected options: IDefineStoreOptions<TState, TActions, TId>;
 
-  constructor (options: IDefineStoreOptions<TState, TActions>) {
+  constructor (options: IDefineStoreOptions<TState, TActions, TId>) {
     this.id = options.id;
     this.state = reactive(options.state());
     if (typeof options.setup === 'function') {
@@ -49,7 +61,7 @@ class ReactiveStore<TState extends IState, TActions extends IActions> {
   }
 
   public toRaw() {
-    return toRaw(this.state);
+    return <TState>toRaw(this.state);
   }
 
   public reset() {
@@ -77,8 +89,12 @@ class ReactiveStore<TState extends IState, TActions extends IActions> {
  *    the store will be dettached to this instance.
  * 4. After dettaching to all instances, the store will be destroyed.
  */
-export function defineStore<TState extends IState, TActions extends IActions>(options: IDefineStoreOptions<TState, TActions>) {
-  let useStore = <IUseStore<TState, TActions>>defineMap.get(options.id);
+export function defineStore<
+  TState extends IState, 
+  TActions extends IActions, 
+  TId extends string
+>(options: IDefineStoreOptions<TState, TActions, TId>) {
+  let useStore = <IUseStore<TState, TActions, TId>>defineMap.get(options.id);
   if (useStore) {
     console.warn(`[wx-setup] Store with id="${options.id}" has already been defined.`);
     return useStore;
@@ -114,7 +130,7 @@ export function defineStore<TState extends IState, TActions extends IActions>(op
       return true;
     };
 
-    let store: ReactiveStore<TState, TActions> = storeMap.get(options.id);
+    let store: ReactiveStore<TState, TActions, TId> = storeMap.get(options.id);
     if (!store) {
       store = new ReactiveStore(options);
       storeMap.set(options.id, store);
